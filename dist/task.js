@@ -48,8 +48,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var ioredis_1 = __importDefault(require("ioredis"));
 var nanoid_1 = __importDefault(require("nanoid"));
+var scored_queue_1 = __importDefault(require("./storage/scored_queue"));
 var load_tasks_1 = __importDefault(require("./loader/load-tasks"));
 var Task = /** @class */ (function () {
     function Task() {
@@ -57,31 +57,36 @@ var Task = /** @class */ (function () {
             throw new Error('A Task must implement run method');
     }
     Task.prototype.execute = function (params) {
-        var _a;
-        (_a = this.run).call.apply(_a, __spreadArray([this], params, false));
+        return __awaiter(this, void 0, void 0, function () {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, (_a = this.run).call.apply(_a, __spreadArray([this], params, false))];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
-    Task.enqueue = function () {
+    Task.enqueue = function (options) {
+        var _a;
         var params = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            params[_i] = arguments[_i];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            params[_i - 1] = arguments[_i];
         }
         return __awaiter(this, void 0, void 0, function () {
-            var redis, time, tasksConfig, taskName, config;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        redis = new ioredis_1.default();
-                        time = new Date();
-                        return [4 /*yield*/, (0, load_tasks_1.default)()];
+            var tasksConfig, taskName, config, queue, score;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, (0, load_tasks_1.default)()];
                     case 1:
-                        tasksConfig = _a.sent();
+                        tasksConfig = _b.sent();
                         taskName = this.name;
                         config = tasksConfig[taskName];
-                        console.log(config);
-                        return [4 /*yield*/, redis.zadd("queue-" + config.queue, time.getTime(), JSON.stringify({ id: (0, nanoid_1.default)(36), task: taskName, args: params }))];
-                    case 2:
-                        _a.sent();
-                        redis.quit();
+                        queue = new scored_queue_1.default(config.queue);
+                        score = ((_a = options === null || options === void 0 ? void 0 : options.performAt) === null || _a === void 0 ? void 0 : _a.getTime()) || new Date().getTime();
+                        queue.push({ id: (0, nanoid_1.default)(36), task: taskName, args: params }, score);
                         return [2 /*return*/];
                 }
             });
