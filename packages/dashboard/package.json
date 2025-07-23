@@ -1,0 +1,21 @@
+{
+  "name": "@sidequest/dashboard",
+  "version": "1.0.0-alpha.1",
+  "description": "",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@sidequest/engine": "workspace:*",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "htmx.org": "^2.0.4"
+  },
+  "packageManager": "yarn@4.9.2"
+}
